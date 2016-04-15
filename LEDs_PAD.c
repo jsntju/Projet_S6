@@ -32,27 +32,27 @@ void main(void){
    
 
       switch(~P2IN&0x0000001F){ 
-          case (0x01): 
+          case (0x01):                    //Centre
               P1OUT &= 0xE0; 
               P1OUT |= 0x01; 
               break; 
 
-          case (0x02): 
+          case (0x02):                   // Haut
               P1OUT &= 0xE0; 
               P1OUT |= 0x04; 
               break; 
 
-          case (0x04): 
+          case (0x04):                   // Bas 
               P1OUT &= 0xE0; 
               P1OUT |= 0x02; 
               break; 
 
-          case (0x08): 
+          case (0x08):                  // Gauche
               P1OUT &= 0xE0; 
               P1OUT |= 0x10; 
               break; 
 
-          case (0x10): 
+          case (0x10):                 // Droite
               P1OUT &= 0xE0; 
               P1OUT |= 0x08; 
               break; 
