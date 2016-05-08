@@ -1,0 +1,25 @@
+<!DOCTYPE CrossStudio_Project_File>
+<solution version="1" Name="C_Executable_1" >
+  <project Name="C_Executable_1" >
+    <configuration Target="MSP430F169" msp430_identify_string="MSP430F169;Preliminary_MSP430F16x" linker_memory_map_file="$(StudioDir)/targets/MSP430F169.xml" project_directory="" project_type="Executable" msp430_debug_interface="JTAG" Name="Common" build_use_hardware_multiplier="Yes" />
+    <folder Name="Source Files" >
+      <configuration filter="c;h;s;asm;inc;s43" Name="Common" />
+      <file file_name="main.c" Name="main.c" />
+      <file file_name="gps.h" Name="gps.h" />
+      <file file_name="io_led_pad.h" Name="io_led_pad.h" />
+      <file file_name="gps.c" Name="gps.c" />
+      <file file_name="io_led_pad.c" Name="io_led_pad.c" />
+      <file file_name="boussole.c" Name="boussole.c" />
+      <file file_name="boussole.h" Name="boussole.h" />
+    </folder>
+    <folder Name="System Files" >
+      <configuration filter="xml" Name="Common" />
+      <file file_name="$(StudioDir)/src/crt0.asm" Name="crt0.asm" />
+      <file file_name="$(StudioDir)/targets/section_placement.xml" Name="section_placement.xml" >
+        <configuration Name="Common" file_type="Section Placement" />
+      </file>
+    </folder>
+  </project>
+  <configuration build_debug_information="Yes" Name="Debug" />
+  <configuration optimize_jump_chaining="Yes" optimize_block_locality="Yes" optimize_tail_merging="Yes" c_preprocessor_definitions="NDEBUG" optimize_cross_calling="Standard" build_debug_information="No" optimize_jump_threading="Yes" Name="Release" optimize_dead_code="Yes" optimize_cross_jumping="Yes" optimize_copy_propagation="Yes" />
+</solution>
