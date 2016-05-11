@@ -1,4 +1,29 @@
+/**
+ * Polytech Marseille
+ * Case 925 - 163, avenue de Luminy
+ * 13288 Marseille CEDEX 9
+ * 
+ * Ce fichier est l'oeuvre d'élèves de Polytech Marseille. Il ne peut être 
+ * reproduit, utilisé ou modifié sans l'avis express de ses auteurs.
+ */
 
+/**
+ * @author BISSUEL Valentin <valentin.bissuel@etu.univ-amu.fr>
+ * @author DENIS Justine <justine.denis@etu.univ-amu.fr>
+ *
+ * @version 1.5.0 / 11/05/2016
+ * 
+ * @todo - 
+ * 
+ * @bug - 
+ */
+
+/**
+ * @file gps.c 
+ * @brief Le programme permet de gérer de recevoir les données de l'écran et du GPS
+ * *  Et de lire les trames GGA ainsi que de les séquencer
+ */
+ 
 #include <__cross_studio_io.h>
 #include <msp430x16x.h>
 #include <string.h>
