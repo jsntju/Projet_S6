@@ -17,9 +17,10 @@ void initialisation_LED_PAD(void){
 
 
 /*
-@Brief: 
+@Brief: Ajoute un délai
 @Parametres:
-	- t (entier)
+	- t (entier): taille du délais (en ms) 
+	(Exemple: si t=10000 alors  t*100 = 1 seconde)
 */
 void delay(unsigned int t){
     int i,j;
@@ -31,24 +32,24 @@ void delay(unsigned int t){
 
 
 /*
+@Brief: Indique les choix effectuer lorsque l'on utilise le PAD 
 */
 void P2_Pad (void) __interrupt[ PORT2_VECTOR ]{  
 	
-        P1OUT = P2IN;
+        P1OUT = P2IN;					//Initialisation du PAD
         push_actif = 0;
         top_actif = 0;
         bot_actif = 0;
         left_actif = 0;
         right_actif = 0;
 
-        if(P2IN == 0x1E) push_actif = 1;
+        if(P2IN == 0x1E) push_actif = 1;		//Indique les choix du pad (1= choix enclencher)	
         if(P2IN == 0x1D) top_actif = 1;
         if(P2IN == 0x1B) bot_actif = 1;
         if(P2IN == 0x17) left_actif = 1;
         if(P2IN == 0x0F) right_actif = 1;
 
-	// reset buffer
-        P2IFG = 0x00 ;
+        P2IFG = 0x00 ;					// reset buffer
         delay(100);
         P2IFG = 0x00 ;
 }
