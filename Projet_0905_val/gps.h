@@ -8,9 +8,9 @@ void usart1_rx (void);
 void activer_communication_USB(void);
 void activer_communication_GPS(void);
 
-char* selec_trame_gga(void);/*char *buf_0);*/
+void selec_trame_gga(void);/*char *buf_0);*/
 char* selec_objet (char * objet);
-char * initialise_obj (char * objet, int taille);
+char* initialise_obj (char *objet, int taille);
 void gps_gga (char *buf_0);
 char * select_buf0(void);
 int search (char *s, char carac, int debut);
@@ -18,8 +18,8 @@ char * substr(char *buf, const char *s, size_t beg, size_t len);
 int GGA_OK (void);
 
 /* Variable globale */
-extern char buf_0[500];
-extern char buf_1[500];
+extern char buf_0[200];
+extern char buf_1[200];
 extern char trame[100];
 extern char UTC[30];
 extern char latitude[10];

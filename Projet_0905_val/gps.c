@@ -9,8 +9,7 @@ int GPS_USB_ENABLE = 0;                   // à 0 si GPS activé ou 1 si USB activ
 // stockage des données de RXBUF0
 
 /*Variable globale GPS*/
-char buf_0[500];
-char buf_1[500];
+char buf_0[200];
 char trame[100];
 char UTC[30];
 char latitude[10];
@@ -27,14 +26,16 @@ char unit_geo[2];        //unité  geod separation
 char age_diff[10];      // Age of Diff. Corr
 char id_station[10];    // Diff. Ref. Station ID
 char checksum[10];
+char buf_1[200];
+int h;
+
+int signal;
+unsigned int est_trameGGA;
+
+unsigned char num_octet1,num_octet2;
 
 int rep_ecran;
 int flag_1;
-
-int h;
-int signal;
-
-unsigned char num_octet1,num_octet2;
 
 
 /*---------------- fonction char -------------------*/
@@ -78,7 +79,7 @@ int search (char *s, char carac, int debut)
 */
 char * select_buf0(void)
 {
- debug_printf("BUF 0 %s\n",buf_0);
+  debug_printf("BUF 0 %s\n",buf_0);
   return(buf_0);
  
 }
@@ -133,30 +134,28 @@ void init_uart0(void){
 
 void usart0_rx (void) __interrupt[USART0RX_VECTOR]{  
     //P1OUT ^= 0x01;
+    char c;
+    // init buffer
+    num_octet1 = 0;
+    memset(buf_0, 0, sizeof buf_0);
+    
+    // tant que le buffer n'est pas rempli
+    while (num_octet1 <= (100-1)) {
+        // tanq que flag interrupt en cours, on attend
+        //P1OUT ^= 0x02;
+        while (!(IFG1 & URXIFG0)) {}
+        buf_0[num_octet1] = U0RXBUF;// ou RXBUF0;
+        num_octet1++;
+        //P1OUT ^= 0x02;
+    }
+    buf_1[0] = '\0';
+    strcpy(buf_1,buf_0);
+    IE1 &= ~URXIE0 ;
+    IFG1 &= ~(IFG1 & URXIFG0);
     /*
-    if(GPS_USB_ENABLE == 0){
-        num_octet1 = 0;
-        memset(buf_0, 0, sizeof buf_0);
-        // tant que le buffer n'est pas rempli
-        while (num_octet1 <= (100-1)) {
-            // tanq que flag interrupt en cours, on attend
-            //P1OUT ^= 0x02;
-            while (!(IFG1 & URXIFG0)) {}
-            buf_0[num_octet1] = U0RXBUF;// ou RXBUF0;
-            num_octet1++;
-            //P1OUT ^= 0x02;
-        }
-        debug_printf("0R: %s\n", buf_0);                   // RXBUF0 to TXBUF0
-    } else {
-        //while (!(IFG1 & URXIFG0)) {}
-        //buf_0[0] = U0RXBUF;  
-        while (!(IFG2 & UTXIFG1)) {}
-        U1TXBUF = U0RXBUF ;
-    }  
-    */
     while (!(IFG2 & UTXIFG1)) {}
     TXBUF1 = RXBUF0 ;
-    //P1OUT ^= 0x01;
+    //P1OUT ^= 0x01;*/
 }
 
 void usart1_rx (void) __interrupt[USART1RX_VECTOR]{  
@@ -169,8 +168,8 @@ void usart1_rx (void) __interrupt[USART1RX_VECTOR]{
     flag_1 = 1;
     rep_ecran = RXBUF1; 
     //debug_printf("1R: %i\n", c);  
-    while (!(IFG1 & UTXIFG0)) {}
-    TXBUF0 = rep_ecran ;
+    //while (!(IFG1 & UTXIFG0)) {}
+    //TXBUF0 = rep_ecran ;
     
 
     //TXBUF0 = RXBUF1 ;
@@ -280,9 +279,10 @@ void activer_communication_GPS(void){
 * Parametres: buf_0: buffer contenant toute les trames
 * Retourne une trame GGA
 */
-char* selec_trame_gga(void/*char *buf_0*/)
+
+void selec_trame_gga(void)
 {
-  char trame1[500];
+  /*char trame1[500];
   char debut_trame[2];
   int retour_chariot;
   debug_printf("BUffer GPS = %s\n",buf_0);
@@ -296,8 +296,13 @@ char* selec_trame_gga(void/*char *buf_0*/)
   {
       strcpy(trame,trame1);                             //trame = bonne trame GGA
   }
-  debug_printf("TRAME GPS = %s\n",trame);
-  return(trame);
+  debug_printf("TRAME GPS = %s\n",trame);*/
+  char* ptr;
+  int retour_chariot;
+  ptr = strstr(buf_1,"$GPGGA");
+  retour_chariot = search(ptr,10,0);   
+  substr(trame,ptr,0,retour_chariot);
+  //return(trame);
 }
 
 
@@ -312,12 +317,13 @@ char* selec_objet (char * objet)
 {   if(trame[0] != '\0')
     {
     int j=0;                                        //Copie la chaine tant qu'il y a pas de virgule ou fin de la chaine
-       while (trame[h] != ',' || trame[h] != '\0')
+       while (trame[h] != ',' && trame[h] != '\0')
        {
+          //debug_printf("trame[h]:%i %i %i ",trame[h],',','\0');
           objet[j] = trame[h];
           j++;
           h++;
-          debug_printf("H++= %i\n", h);
+          //debug_printf("H++= %i\n", h);
        }
        h++;                                       //H variable globale => utilisé à chaque rappele de fonction
     }
@@ -345,16 +351,14 @@ char * initialise_obj (char * objet, int taille)
 * Retourne 1 si elle est OK 
 * 0 sinon*/
 int GGA_OK (void)
-{                                                 //fonction atoi: transforme char en int  
+{    
+   signal = 0;                                          //fonction atoi: transforme char en int  
   if((atoi(Pos_ind) != 0) && (atoi(nb_sat) >= 4)) //4 statellite et position (flag) doit être à plus de 0              
   {
       signal = 1;                               /* Si valide envoye trame */
           /*ENVOYER TRAMES au µc
           (mettre en mode transparent)*/
           // URXD1 = buffer
-  }else
-  {
-      signal = 0;
-  }
+ }
   return(signal);
 }
