@@ -37,7 +37,7 @@ int rep_ecran;
 int flag_1;
 
 
-/*---------------- fonction char -------------------*/
+/*----------------------------------------- FONCTION POUR CHAR --------------------------------------------------------*/
 /* @Brief: copie une chaine de caracteres entre deux rangs donnés
 * Parametres: 
   - buf: nouvelle chaine de caractere
@@ -73,19 +73,11 @@ int search (char *s, char carac, int debut)
 
 
 
-/*---------------------------------------------------------------------------------------*/
-/* @ Brief: Récupere les informations du buffers pour transmettre au main:
-*/
-char * select_buf0(void)
-{
-  debug_printf("BUF 0 %s\n",buf_0);
-  return(buf_0);
- 
-}
-
 
 
 /*---------------------------- INITIALISATION UART--------------------------------*/
+/*@Brief: initialise l'uart
+*/
 void init_uart0(void){
     unsigned int i;
     
@@ -131,30 +123,26 @@ void init_uart0(void){
     _EINT();                             // Enable interrupts
 }
 
+
+
+
+/*@brief: Recupére les informations du buffer et stock les informations dans buf_0.
+* Et copie les données à exploiter dans buf_1.
+*/
 void usart0_rx (void) __interrupt[USART0RX_VECTOR]{  
-    //P1OUT ^= 0x01;
     char c;
-    // init buffer
-    num_octet1 = 0;
-    memset(buf_0, 0, sizeof buf_0);
+    num_octet1 = 0;                     //compteur d'octets
+    memset(buf_0, 0, sizeof buf_0);     //Déclare la memoire alloué à buf_0
     
-    // tant que le buffer n'est pas rempli
-    while (num_octet1 <= (100-1)) {
-        // tanq que flag interrupt en cours, on attend
-        //P1OUT ^= 0x02;
-        while (!(IFG1 & URXIFG0)) {}
-        buf_0[num_octet1] = U0RXBUF;// ou RXBUF0;
+    while (num_octet1 <= (100-1)) {     // tant que le buffer n'est pas rempli
+        while (!(IFG1 & URXIFG0)) {}    // tant que flag interrupt en cours, on attend
+        buf_0[num_octet1] = U0RXBUF;    // ou RXBUF0;
         num_octet1++;
-        //P1OUT ^= 0x02;
     }
-    buf_1[0] = '\0';
-    strcpy(buf_1,buf_0);
-    IE1 &= ~URXIE0 ;
-    IFG1 &= ~(IFG1 & URXIFG0);
-    /*
-    while (!(IFG2 & UTXIFG1)) {}
-    TXBUF1 = RXBUF0 ;
-    //P1OUT ^= 0x01;*/
+    buf_1[0] = '\0';                    //Initialise buf_1  
+    strcpy(buf_1,buf_0);                //Copie buf_0 dans buf_1
+    IE1 &= ~URXIE0 ;                    //
+    IFG1 &= ~(IFG1 & URXIFG0);          //
 }
 
 void usart1_rx (void) __interrupt[USART1RX_VECTOR]{  
@@ -169,10 +157,7 @@ void usart1_rx (void) __interrupt[USART1RX_VECTOR]{
     //debug_printf("1R: %i\n", c);  
     //while (!(IFG1 & UTXIFG0)) {}
     //TXBUF0 = rep_ecran ;
-    
-
     //TXBUF0 = RXBUF1 ;
-    
     //P1OUT ^= 0x02;
 }
 
