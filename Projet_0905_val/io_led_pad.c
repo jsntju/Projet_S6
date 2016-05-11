@@ -4,14 +4,23 @@
 #include <string.h>
 #include "ecran.h"
 
+
+/*@Brief: initilialise les LED et le PAD
+*/
 void initialisation_LED_PAD(void){
-    P1DIR |= 0x1F;      // = (0001 1111)2 : met les bits P1.0 à P1.4 (LEDs) en sortie 
-    P2DIR = 0x00;      // = (1110 0000)2 : met les bits P2.0 à P2.4 (PAD) en entrée
-    P2IE = 0xFF;        // = (1111 1111)2 : met les bits le port 2 en interruption
+    P1DIR |= 0x1F;      	// = (0001 1111)2 : met les bits P1.0 Ã  P1.4 (LEDs) en sortie 
+    P2DIR = 0x00;      		// = (1110 0000)2 : met les bits P2.0 Ã  P2.4 (PAD) en entrÃ©e
+    P2IE = 0xFF;        	// = (1111 1111)2 : met les bits le port 2 en interruption
     P2IES = 0xFF;
-    P1OUT = 0x1F;       // les 5 LEDs sont mis à 1 pour verifier leur états au départ
+    P1OUT = 0x1F;       	// les 5 LEDs sont mis Ã  1 pour verifier leur Ã©tats au dÃ©part
 }
 
+
+/*
+@Brief: 
+@Parametres:
+	- t (entier)
+*/
 void delay(unsigned int t){
     int i,j;
     for( j=0 ; j<=t ; j++ ){
@@ -20,6 +29,9 @@ void delay(unsigned int t){
 }
 
 
+
+/*
+*/
 void P2_Pad (void) __interrupt[ PORT2_VECTOR ]{  
 	
         P1OUT = P2IN;
