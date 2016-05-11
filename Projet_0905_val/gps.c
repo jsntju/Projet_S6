@@ -11,7 +11,7 @@ int GPS_USB_ENABLE = 0;                         // à 0 si GPS activé ou 1 si U
 /*------------------ Variable globale programme*/
 char buf_0[200];
 char trame[100];                            //chaine contenant la trame GGA
-char UTC[10];
+char UTC[30];
 char latitude[10];
 char NS[2];                                   //Nord ou Sud
 char longitude[10];
