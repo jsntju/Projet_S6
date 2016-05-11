@@ -147,20 +147,11 @@ void usart0_rx (void) __interrupt[USART0RX_VECTOR]{
     IFG1 &= ~(IFG1 & URXIFG0);          //
 }
 
+/*@Brief: Stok la réponse de l'écran dans rep_ecran
+*/
 void usart1_rx (void) __interrupt[USART1RX_VECTOR]{  
-    //P1OUT ^= 0x02;
-    // init buffer
-    //while ((IFG2 & URXIFG1)) {}
-    //c = U1RXBUF;
-    //debug_printf("0R: %s\n", c); 
-    //debug_printf("1R: %c | %i\n",RXBUF1, RXBUF1);  
     flag_1 = 1;
     rep_ecran = RXBUF1; 
-    //debug_printf("1R: %i\n", c);  
-    //while (!(IFG1 & UTXIFG0)) {}
-    //TXBUF0 = rep_ecran ;
-    //TXBUF0 = RXBUF1 ;
-    //P1OUT ^= 0x02;
 }
 
 
