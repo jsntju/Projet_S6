@@ -1,4 +1,28 @@
+/**
+ * Polytech Marseille
+ * Case 925 - 163, avenue de Luminy
+ * 13288 Marseille CEDEX 9
+ * 
+ * Ce fichier est l'oeuvre d'√©l√®ves de Polytech Marseille. Il ne peut √™tre 
+ * reproduit, utilis√© ou modifi√© sans l'avis express de ses auteurs.
+ */
 
+/**
+ * @author BISSUEL Valentin <valentin.bissuel@etu.univ-amu.fr>
+ * @author DENIS Justine <justine.denis@etu.univ-amu.fr>
+ *
+ * @version 1.0.0 / 11/05/2016
+ * 
+ * @todo - 
+ * 
+ * @bug - 
+ */
+
+/**
+ * @file main.c
+ * @brief Le programme permet de r√©aliser une boussole avec les LEDs du GPS
+ */
+ 
 #include <__cross_studio_io.h>
 #include <msp430x16x.h>
 #include <string.h>
@@ -7,17 +31,17 @@
 
 
 
-/* @brief: Transformer les coordonnÈes en Degres minute senconde (DMS) en degres decimaux (DD)
+/* @brief: Transformer les coordonn√©es en Degres minute senconde (DMS) en degres decimaux (DD)
 *   @Parametre:
-  - La chaine de caractere contenat la coordonnÈe
+  - La chaine de caractere contenat la coordonn√©e
   - Lati_longi (booleen): si 1 -> latitude, si 0 ->longitude
   - cardi: Point cardinaux: NS pour latitude et EW pour longitude
 *   @Retourne:
-  - DD: la coordonnÈe en de gres decimeaux
+  - DD: la coordonn√©e en de gres decimeaux
 */
 float DMS_en_DD(char* coord,int lati_longi, char* cardi)
 {
-  float DD;                                                   //coordonnÈe decimale
+  float DD;                                                   //coordonn√©e decimale
   char* tmp;                                                  //Temporaire 
   int degre, min, sec;
 //      Extraction des degres, minutes et secondes
@@ -29,7 +53,7 @@ float DMS_en_DD(char* coord,int lati_longi, char* cardi)
         degre = -degre;
       }
       min = atoi(substr(tmp,coord,2,3));
-      sec = atoi(substr(tmp,coord,5,search(coord,'\0',5)));   //sec jusqu'‡ la fin de la chaine
+      sec = atoi(substr(tmp,coord,5,search(coord,'\0',5)));   //sec jusqu'√† la fin de la chaine
     }
     else                                                      //Longitude
     {
@@ -40,7 +64,7 @@ float DMS_en_DD(char* coord,int lati_longi, char* cardi)
       }
 
       min = atoi(substr(tmp,coord,3,4));
-      sec = atoi(substr(tmp,coord,6,search(coord,'\0',6)));   //sec jusqu'‡ la fin de la chaine
+      sec = atoi(substr(tmp,coord,6,search(coord,'\0',6)));   //sec jusqu'√† la fin de la chaine
     }
 
     DD = degre+(min/60)+(sec/3600);                           //Calcul degres decimaux
@@ -50,15 +74,15 @@ float DMS_en_DD(char* coord,int lati_longi, char* cardi)
 
 
 /*
-* @Brief: Calcul l'angle entre le pole Nord et un point gÈographique
+* @Brief: Calcul l'angle entre le pole Nord et un point g√©ographique
 *   @Parametres:
-    - Longi: longitude en DD du point gÈographique
-    - Lati: latitude en DD du point gÈographique
+    - Longi: longitude en DD du point g√©ographique
+    - Lati: latitude en DD du point g√©ographique
 *   @Retourne: azimut -> l'angle du vecteur
 */
 float direction_nord(float longi, float lati)
 {
-  float longi_nord = 82.116667;                               //coordonnÈe DD pole Nord
+  float longi_nord = 82.116667;                               //coordonn√©e DD pole Nord
   float lati_nord = -114.068888;
   float azimut;                                               //angle poleNord-point
   float x, y;
