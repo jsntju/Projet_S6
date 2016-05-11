@@ -4,47 +4,46 @@
 #include <string.h>
 
 #include "io_led_pad.h"
-int GPS_USB_ENABLE = 0;                   // à 0 si GPS activé ou 1 si USB activé
+int GPS_USB_ENABLE = 0;                         // Ã  0 si GPS activÃ© ou 1 si USB activÃ©
 
-// stockage des données de RXBUF0
 
-/*Variable globale GPS*/
+/*------------------ Variable globale programme*/
 char buf_0[200];
 char trame[100];
 char UTC[30];
 char latitude[10];
-char NS[2];               //Nord ou Sud
+char NS[2];                                   //Nord ou Sud
 char longitude[10];
-char EW[2];              //Est ou Ouest
-char Pos_ind[10];         //Position fix indicator
-char nb_sat[10];          //nombre de sattelites
-char HDOP[10];            //horizontal dilution of precision
-char alti[10];            //altitude
-char unit_alti[2];        //unité  d'altitude
-char geoid[10];            //geoid separation
-char unit_geo[2];        //unité  geod separation
-char age_diff[10];      // Age of Diff. Corr
-char id_station[10];    // Diff. Ref. Station ID
+char EW[2];                                   //Est ou Ouest
+char Pos_ind[10];                             //Position fix indicator
+char nb_sat[10];                              //nombre de sattelites
+char HDOP[10];                                //horizontal dilution of precision
+char alti[10];                                //altitude
+char unit_alti[2];                            //unitÃ©  d'altitude
+char geoid[10];                               //geoid separation
+char unit_geo[2];                             //unitÃ©  geod separation
+char age_diff[10];                            // Age of Diff. Corr
+char id_station[10];                          // Diff. Ref. Station ID
 char checksum[10];
 char buf_1[200];
 int h;
 
+
+/*------------------ Variable globale gps.c*/
 int signal;
 unsigned int est_trameGGA;
-
 unsigned char num_octet1,num_octet2;
-
 int rep_ecran;
 int flag_1;
 
 
 /*---------------- fonction char -------------------*/
-/* @Brief: copie une chaine de caracteres entre deux rangs donnés
+/* @Brief: copie une chaine de caracteres entre deux rangs donnÃ©s
 * Parametres: 
   - buf: nouvelle chaine de caractere
-  - s : chaine de caractere à copier
-  - beg: rang à partir duquelle on souhaite copier la chaine
-  - beg: rang jusqu'où on souhaite copier la chaine
+  - s : chaine de caractere Ã  copier
+  - beg: rang Ã  partir duquelle on souhaite copier la chaine
+  - beg: rang jusqu'oÃ¹ on souhaite copier la chaine
 * Retourne:
   - La nouvelle chaine buf
 */
@@ -55,13 +54,13 @@ char * substr(char *buf, const char *s, size_t beg, size_t len)
         return (buf);
 }
 
-/* @Brief: renvoit la position d' un caractere à partir d'un rang donné
+/* @Brief: renvoit la position d' un caractere Ã  partir d'un rang donnÃ©
 * Parametres: 
   - s : chaine de caractere 
   - carac: caratere chercher
   - debut: rang de la chaine de caractere
 * Retourne:
-  - Le rang (int) où se trouve le caractere
+  - Le rang (int) oÃ¹ se trouve le caractere
 */
 int search (char *s, char carac, int debut)
 {
@@ -75,7 +74,7 @@ int search (char *s, char carac, int debut)
 
 
 /*---------------------------------------------------------------------------------------*/
-/* @ Brief: Récupere les informations du buffers pour transmettre au main:
+/* @ Brief: RÃ©cupere les informations du buffers pour transmettre au main:
 */
 char * select_buf0(void)
 {
@@ -91,13 +90,13 @@ void init_uart0(void){
     unsigned int i;
     
     //  Configuration de l'USART0
-    UCTL0 = SWRST;                       // mise à 0 de l'UART0 
-    UCTL0 |= CHAR;                       // Format des caractères sur 8-bits
+    UCTL0 = SWRST;                       // mise Ã  0 de l'UART0 
+    UCTL0 |= CHAR;                       // Format des caractÃ¨res sur 8-bits
     UTCTL0 |= SSEL1;                     // UCLK = SMCLK
     
     //  Configuration de l'USART1
-    UCTL1 = SWRST;                       // mise à 0 de l'UART1 
-    UCTL1 |= CHAR;                       // Format des caractères sur 8-bits
+    UCTL1 = SWRST;                       // mise Ã  0 de l'UART1 
+    UCTL1 |= CHAR;                       // Format des caractÃ¨res sur 8-bits
     UTCTL1 |= SSEL1;                     // UCLK = SMCLK
 
     // Config du taux de transmission pour 9600 bauds
@@ -109,10 +108,10 @@ void init_uart0(void){
     U1BR1 = 0x03;                      
     UMCTL1 = 0x21;                       // no modulation
 
-    UCTL0 &= ~SWRST;                     // Fin de l'état de reset de l'UART0
-    UCTL1 &= ~SWRST;                     // Fin de l'état de reset de l'UART1
+    UCTL0 &= ~SWRST;                     // Fin de l'Ã©tat de reset de l'UART0
+    UCTL1 &= ~SWRST;                     // Fin de l'Ã©tat de reset de l'UART1
 
-    // activation transmission et récéption
+    // activation transmission et rÃ©cÃ©ption
     ME1 |= URXE0 | UTXE0;                // Enable USART0 TXD/RXD
     IE1 |= URXIE0 ;                      // Enable USART0 RX interrup
 
@@ -128,7 +127,7 @@ void init_uart0(void){
     P3DIR |= 0x80;                       // P3.6 output direction
     P3DIR &= ~0x40;                      // P3.7 output direction
      
-    // activation des interruptions pour la réception
+    // activation des interruptions pour la rÃ©ception
     _EINT();                             // Enable interrupts
 }
 
@@ -182,7 +181,7 @@ void activer_communication_USB(void){
     // on desactive le GPS, P4,0
     P4OUT &= ~BIT0;
     P4OUT = BIT2;      // = (0000 0100)2 : P4.2 = 1 -> le PORT SERIE 0 communique avec l'USB  
-    if((P4OUT&BIT2)!= 0)debug_printf("Communication USB activé\n");
+    if((P4OUT&BIT2)!= 0)debug_printf("Communication USB activÃ©\n");
     GPS_USB_ENABLE = 1;
 }
 
@@ -191,12 +190,12 @@ void activer_communication_GPS(void){
     // on active le GPS, P4,0
     P4OUT |= BIT0 ;
     P4OUT &= ~BIT2;
-    if((P4OUT&BIT2)== 0) debug_printf("Communication GPS activé\n");
+    if((P4OUT&BIT2)== 0) debug_printf("Communication GPS activÃ©\n");
     GPS_USB_ENABLE = 0;
 }
 
 /*----------------------- TRAMES GGA -------------------------------------------------------*/
-/*@Brief: Selectionne et découpe la trame GGA et supprime les informations 
+/*@Brief: Selectionne et dÃ©coupe la trame GGA et supprime les informations 
 */
 /*void gps_gga (char *buf_0)
 {
@@ -205,7 +204,7 @@ void activer_communication_GPS(void){
       selec_trame_gga(buf_0);
       h = search(trame,',',0)+1;
 
-      selec_objet(UTC);                               /*Séparation de la trame en données*/  
+      selec_objet(UTC);                               /*SÃ©paration de la trame en donnÃ©es*/  
       /*selec_objet(latitude);
       selec_objet(NS);
       selec_objet(longitude);
@@ -242,11 +241,11 @@ void activer_communication_GPS(void){
     
 
 
-/*Verification validité de trame: 4 satellites et fix =[1-3]*/
+/*Verification validitÃ© de trame: 4 satellites et fix =[1-3]*/
  /*if((atoi(Pos_ind) != 0) && (atoi(nb_sat) >= 4))               /* Si valide envoye trame */
  /* {
     signal = 1;
-        /*ENVOYER TRAMES au µc
+        /*ENVOYER TRAMES au Âµc
         (mettre en mode transparent)*/
         // URXD1 = buffer
 /*  }else
@@ -290,7 +289,7 @@ void selec_trame_gga(void)
 
   substr(trame1,buf_0,0,retour_chariot);
 
-  substr(debut_trame,trame1,0,5);                       //enlève défaut (mauvaises trames)
+  substr(debut_trame,trame1,0,5);                       //enlÃ¨ve dÃ©faut (mauvaises trames)
   
   if(strcmp(debut_trame,"$GPGG") == 0)                  //0 si identique
   {
@@ -308,8 +307,8 @@ void selec_trame_gga(void)
 
 /* @ Selectionne les objets de la trame (entre les virgules)
 * @Parametres: 
-* - char * objet: chaine de caractere à selectionner
-* - int *h: Début de la chaine de caractère (incrementer après la prochaine virgule)
+* - char * objet: chaine de caractere Ã  selectionner
+* - int *h: DÃ©but de la chaine de caractÃ¨re (incrementer aprÃ¨s la prochaine virgule)
 * @ retourne:
 * - L'objet: chaine de caracteres
 */
@@ -325,7 +324,7 @@ char* selec_objet (char * objet)
           h++;
           //debug_printf("H++= %i\n", h);
        }
-       h++;                                       //H variable globale => utilisé à chaque rappele de fonction
+       h++;                                       //H variable globale => utilisÃ© Ã  chaque rappele de fonction
     }
     return(objet);
 }
@@ -334,7 +333,7 @@ char* selec_objet (char * objet)
 * @ Parametre: 
 * - Objet (chaine de caracteres)
 * - Taille: taille amximum du char
-* @ Retourne: Objet effacé 
+* @ Retourne: Objet effacÃ© 
 */
 char * initialise_obj (char * objet, int taille)
 {
@@ -347,16 +346,16 @@ char * initialise_obj (char * objet, int taille)
 }
 
 
-/* @Brief: la trame envoyé est-elle correcte?
+/* @Brief: la trame envoyÃ© est-elle correcte?
 * Retourne 1 si elle est OK 
 * 0 sinon*/
 int GGA_OK (void)
 {    
    signal = 0;                                          //fonction atoi: transforme char en int  
-  if((atoi(Pos_ind) != 0) && (atoi(nb_sat) >= 4)) //4 statellite et position (flag) doit être à plus de 0              
+  if((atoi(Pos_ind) != 0) && (atoi(nb_sat) >= 4)) //4 statellite et position (flag) doit Ãªtre Ã  plus de 0              
   {
       signal = 1;                               /* Si valide envoye trame */
-          /*ENVOYER TRAMES au µc
+          /*ENVOYER TRAMES au Âµc
           (mettre en mode transparent)*/
           // URXD1 = buffer
  }
