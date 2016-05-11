@@ -3,15 +3,15 @@
  * Case 925 - 163, avenue de Luminy
  * 13288 Marseille CEDEX 9
  * 
- * Ce fichier est l'oeuvre d'élèves de Polytech Marseille. Il ne peut être 
- * reproduit, utilisé ou modifié sans l'avis express de ses auteurs.
+ * Ce fichier est l'oeuvre d'Ã©lÃ¨ves de Polytech Marseille. Il ne peut Ãªtre 
+ * reproduit, utilisÃ© ou modifiÃ© sans l'avis express de ses auteurs.
  */
 
 /**
  * @author BISSUEL Valentin <valentin.bissuel@etu.univ-amu.fr>
  * @author DENIS Justine <justine.denis@etu.univ-amu.fr>
  *
- * @version 1.0.0 / 11/04/2016
+ * @version 1.5.0 / 11/05/2016
  * 
  * @todo - 
  * 
@@ -20,9 +20,7 @@
 
 /**
  * @file main.c
- * @brief Le programme permet de A DECRIRE !!!! 
- * 
- * A DECRIRE !!!!  
+ * @brief Le programme permet de gÃ©rer l'Ã©cran et les applications disponible d'un GPS
  */
 
 #include <__cross_studio_io.h>
@@ -34,7 +32,7 @@
 #include "io_led_pad.h"
 #include "ecran.h"
 
-/*Données trames GPS*/
+/*DonnÃ©es trames GPS*/
 char* buf;
 char* trameGGA;
 
@@ -48,13 +46,13 @@ void main(void){
     int i;
 
     // initialisation de la clock
-    // arrêt du watchdog           
-    WDTCTL = WDTPW + WDTHOLD;            // 0x5A00 + 0x0080 : Mot de passe + Watchdog Timer(WDT) arrété
+    // arrÃªt du watchdog           
+    WDTCTL = WDTPW + WDTHOLD;            // 0x5A00 + 0x0080 : Mot de passe + Watchdog Timer(WDT) arrÃ©tÃ©
     
-    // sequence à faire pour le switch entre 2 clock (cf page 4-12 du guide de l'utilisateur)
+    // sequence Ã  faire pour le switch entre 2 clock (cf page 4-12 du guide de l'utilisateur)
     // Configuration du Basic Clock System Control
-    BCSCTL1 &= ~XT2OFF;                  // XT2 est allumé
-    // verification nécéssaire du OSCFault lorsqu'on modifie la config des Clock
+    BCSCTL1 &= ~XT2OFF;                  // XT2 est allumÃ©
+    // verification nÃ©cÃ©ssaire du OSCFault lorsqu'on modifie la config des Clock
     do {
         //debug_printf("IFG1  = %x\n",IFG1);
         IFG1 &= ~OFIFG;                  // Clear OSCFault flag
@@ -66,8 +64,8 @@ void main(void){
     
     // initialisation du port P4
     // P4.0,1 et 2 en sortie (0 : ENABLE_GPS, 1:RESET_LCD, 2 : CMD_SWITCH)
-    // on met RESET_LCD à 1 puis 0 pendant A PRECISER puis on la remet à 1
-    // pour initialiser la communication entre l'écran et l'µc
+    // on met RESET_LCD Ã  1 puis 0 pendant A PRECISER puis on la remet Ã  1
+    // pour initialiser la communication entre l'Ã©cran et l'Âµc
     P4DIR = 0x07;
     P4OUT = BIT2 | BIT1;
     delay(100);
@@ -84,17 +82,17 @@ void main(void){
     delay(10000);
     delay(10000);
     // on communique avec l'USB 
-    P1OUT = 0x1E;                        // led0 éteint : initialisation du port 4 terminé
+    P1OUT = 0x1E;                        // led0 Ã©teint : initialisation du port 4 terminÃ©
 
     // initialisation de l'uart 0 et 1
     init_uart0();   
-    P1OUT = 0x1C;                        // led1 éteint : initialisation de l'UART 0 et 1 terminé 
+    P1OUT = 0x1C;                        // led1 Ã©teint : initialisation de l'UART 0 et 1 terminÃ© 
 
     // verification de la config des registres UART pour la communication RS232
     //aff_config_uart();
     init_ecran();
-    P1OUT = 0x18;                        // led2 éteint : initialisation de l'écran
-    P1OUT = 0x00;                        // initialisation terminé
+    P1OUT = 0x18;                        // led2 Ã©teint : initialisation de l'Ã©cran
+    P1OUT = 0x00;                        // initialisation terminÃ©
     
     P4OUT &= ~BIT2 & ~BIT0 ; 
     //activer_communication_GPS();
