@@ -10,7 +10,7 @@ int GPS_USB_ENABLE = 0;                         // à 0 si GPS activé ou 1 si U
 /*------------------ Variable globale programme*/
 char buf_0[200];
 char trame[100];
-char UTC[30];
+char UTC[10];
 char latitude[10];
 char NS[2];                                   //Nord ou Sud
 char longitude[10];
@@ -162,138 +162,46 @@ void usart1_rx (void) __interrupt[USART1RX_VECTOR]{
 }
 
 
+/*-------------------------------- ACTIVER COMMUNICATIONS ------------------------------------------------*/
+/* @brief: active la liason entre le microprocesseur et l'usb
+*/
 void activer_communication_USB(void){
     // on desactive le GPS, P4,0
     P4OUT &= ~BIT0;
-    P4OUT = BIT2;      // = (0000 0100)2 : P4.2 = 1 -> le PORT SERIE 0 communique avec l'USB  
+    P4OUT = BIT2;                           // = (0000 0100)2 : P4.2 = 1 -> le PORT SERIE 0 communique avec l'USB  
     if((P4OUT&BIT2)!= 0)debug_printf("Communication USB activé\n");
     GPS_USB_ENABLE = 1;
 }
 
+/* @brief: active la liason entre le microprocesseur et le GPS
+*/
 void activer_communication_GPS(void){
-    //P4OUT &= ~BIT2;      // = (1111 1011)2 : P4.2 = 0 -> le PORT SERIE 0 communique avec le GPS  
-    // on active le GPS, P4,0
-    P4OUT |= BIT0 ;
+    P4OUT |= BIT0 ;                         // = (1111 1011)2 : P4.2 = 0 -> le PORT SERIE 0 communique avec le GPS  
     P4OUT &= ~BIT2;
     if((P4OUT&BIT2)== 0) debug_printf("Communication GPS activé\n");
     GPS_USB_ENABLE = 0;
 }
 
-/*----------------------- TRAMES GGA -------------------------------------------------------*/
-/*@Brief: Selectionne et découpe la trame GGA et supprime les informations 
-*/
-/*void gps_gga (char *buf_0)
-{
-         // debug_printf("TRAME: %s\n", trame);
-       
-      selec_trame_gga(buf_0);
-      h = search(trame,',',0)+1;
-
-      selec_objet(UTC);                               /*Séparation de la trame en données*/  
-      /*selec_objet(latitude);
-      selec_objet(NS);
-      selec_objet(longitude);
-      selec_objet(EW);
-      selec_objet(Pos_ind);
-      selec_objet(nb_sat);
-      selec_objet(HDOP);
-      selec_objet(alti);
-      selec_objet(unit_alti);
-      selec_objet(geoid);
-      selec_objet(unit_geo);
-      selec_objet(age_diff);
-      selec_objet(id_station);  
-      selec_objet(checksum);  
-
-      /*debug_printf("pos_indi: %s\n", Pos_ind);
-      debug_printf("nb_sat: %s \n", nb_sat);
-     
-      debug_printf("UTC: %s\n",UTC);                              
-      debug_printf("lat: %s\n",latitude);
-      debug_printf("NS: %s\n",NS);
-      debug_printf("longi: %s\n",longitude);
-      debug_printf("EW: %s\n",EW);
-      debug_printf("pos indi: %s\n",Pos_ind);
-      debug_printf("nb sat: %s\n",nb_sat);
-      debug_printf("hdop: %s\n",HDOP);
-      debug_printf("alti: %s\n",alti);
-      debug_printf("unite alti: %s\n",unit_alti);
-      debug_printf("geoid: %s\n",geoid);
-      debug_printf("m geo: %s\n",unit_geo);
-      debug_printf("age dif: %s\n",age_diff);
-      debug_printf("id: %s\n",id_station);  
-      debug_printf("chek: %s\n",checksum);  */
-    
 
 
-/*Verification validité de trame: 4 satellites et fix =[1-3]*/
- /*if((atoi(Pos_ind) != 0) && (atoi(nb_sat) >= 4))               /* Si valide envoye trame */
- /* {
-    signal = 1;
-        /*ENVOYER TRAMES au µc
-        (mettre en mode transparent)*/
-        // URXD1 = buffer
-/*  }else
-  {
-    signal = 0;
-  }
-
-  //debug_printf("Signal = %i\n",signal);
-
-
-   initialise_obj(UTC,30);
-      initialise_obj(latitude,10);
-      initialise_obj(NS,2);
-      initialise_obj(longitude,10);
-      initialise_obj(EW,2);
-      initialise_obj(Pos_ind,10);
-      initialise_obj(nb_sat,10);
-      initialise_obj(HDOP,10);
-      initialise_obj(alti,10);
-      initialise_obj(unit_alti,2);
-      initialise_obj(geoid,10);
-      initialise_obj(unit_geo,2);
-      initialise_obj(age_diff,10);
-      initialise_obj(id_station,10);  
-      initialise_obj(checksum,10);  
-}
-
-*/
+/*----------------------------------------- SELECTION TRAMES GGA -------------------------------------------------------*/
 /* @Brief: Selectionne les trames GGA
-* Parametres: buf_0: buffer contenant toute les trames
+* Utilise buf_1 et découpe dans un nouveaux Char la trame GGA
 * Retourne une trame GGA
 */
-
 void selec_trame_gga(void)
 {
-  /*char trame1[500];
-  char debut_trame[2];
-  int retour_chariot;
-  debug_printf("BUffer GPS = %s\n",buf_0);
-  retour_chariot = search(buf_0,10,0);                   //Selection trame GGA
-
-  substr(trame1,buf_0,0,retour_chariot);
-
-  substr(debut_trame,trame1,0,5);                       //enlève défaut (mauvaises trames)
-  
-  if(strcmp(debut_trame,"$GPGG") == 0)                  //0 si identique
-  {
-      strcpy(trame,trame1);                             //trame = bonne trame GGA
-  }
-  debug_printf("TRAME GPS = %s\n",trame);*/
   char* ptr;
   int retour_chariot;
-  ptr = strstr(buf_1,"$GPGGA");
-  retour_chariot = search(ptr,10,0);   
-  substr(trame,ptr,0,retour_chariot);
-  //return(trame);
+  ptr = strstr(buf_1,"$GPGGA");                         //Recherche $GPGGA (debut de la trame)
+  retour_chariot = search(ptr,10,0);                    //Fin de la trame: retour chariot (10 en ASCII)
+  substr(trame,ptr,0,retour_chariot);                   //copie la trame GGA dans trame
 }
 
 
 /* @ Selectionne les objets de la trame (entre les virgules)
 * @Parametres: 
 * - char * objet: chaine de caractere à selectionner
-* - int *h: Début de la chaine de caractère (incrementer après la prochaine virgule)
 * @ retourne:
 * - L'objet: chaine de caracteres
 */
