@@ -1,3 +1,29 @@
+/**
+ * Polytech Marseille
+ * Case 925 - 163, avenue de Luminy
+ * 13288 Marseille CEDEX 9
+ * 
+ * Ce fichier est l'oeuvre d'élèves de Polytech Marseille. Il ne peut être 
+ * reproduit, utilisé ou modifié sans l'avis express de ses auteurs.
+ */
+
+/**
+ * @author BISSUEL Valentin <valentin.bissuel@etu.univ-amu.fr>
+ * @author DENIS Justine <justine.denis@etu.univ-amu.fr>
+ *
+ * @version 1.1.0 / 11/05/2016
+ * 
+ * @todo - 
+ * 
+ * @bug - 
+ */
+
+/**
+ * @file ecran.c
+ * @brief Le programme permet d'afficher l'interface graphique sur l'écran du GPS
+ */
+
+
 #include <__cross_studio_io.h>
 #include <msp430x16x.h>
 #include <string.h>
@@ -12,8 +38,8 @@ int push_actif,top_actif,bot_actif,left_actif,right_actif;
 
 void init_ecran(void){
     clean_screen();
-    SSTimeout(0);                        // arret du defilement de l'�cran
-    gfx_ScreenMode(1);                   // mode paysage invers�
+    SSTimeout(0);                        // arret du defilement de l'écran
+    gfx_ScreenMode(1);                   // mode paysage inversé
     
     gfx_RectangleFilled(0,0,128,15,0451);
     gfx_RectangleFilled(0,15,128,128,65535);
