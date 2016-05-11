@@ -162,6 +162,9 @@ void usart1_rx (void) __interrupt[USART1RX_VECTOR]{
 }
 
 
+
+
+
 /*-------------------------------- ACTIVER COMMUNICATIONS ------------------------------------------------*/
 /* @brief: active la liason entre le microprocesseur et l'usb
 */
@@ -206,26 +209,25 @@ void selec_trame_gga(void)
 * - L'objet: chaine de caracteres
 */
 char* selec_objet (char * objet)
-{   if(trame[0] != '\0')
+{   if(trame[0] != '\0')                                //Si la trame est vide, on fait rien
     {
-    int j=0;                                        //Copie la chaine tant qu'il y a pas de virgule ou fin de la chaine
-       while (trame[h] != ',' && trame[h] != '\0')
+    int j=0;                                            
+       while (trame[h] != ',' && trame[h] != '\0')      //Copie la chaine tant qu'il y a pas de virgule ou fin de la chaine
        {
-          //debug_printf("trame[h]:%i %i %i ",trame[h],',','\0');
           objet[j] = trame[h];
           j++;
-          h++;
-          //debug_printf("H++= %i\n", h);
+          h++;                                          //h: variable globale => rang de départ pour copier les objets
        }
-       h++;                                       //H variable globale => utilisé à chaque rappele de fonction
+       h++;                                             //h => utilisé à chaque rappele de fonction
     }
     return(objet);
 }
 
 /* @Brief: Initialise les objets de la trame
+* permet de reécrire dans le char sans garder les informations précédentes
 * @ Parametre: 
 * - Objet (chaine de caracteres)
-* - Taille: taille amximum du char
+* - Taille: taille maximum du char
 * @ Retourne: Objet effacé 
 */
 char * initialise_obj (char * objet, int taille)
@@ -239,18 +241,15 @@ char * initialise_obj (char * objet, int taille)
 }
 
 
-/* @Brief: la trame envoyé est-elle correcte?
-* Retourne 1 si elle est OK 
+/* @Brief: Indique si la trame envoyé est correcte et donc utilisable
+* Retourne 1 si trame correcte 
 * 0 sinon*/
 int GGA_OK (void)
 {    
-   signal = 0;                                          //fonction atoi: transforme char en int  
+   signal = 0;                                    //fonction atoi: transforme char en int  
   if((atoi(Pos_ind) != 0) && (atoi(nb_sat) >= 4)) //4 statellite et position (flag) doit être à plus de 0              
   {
-      signal = 1;                               /* Si valide envoye trame */
-          /*ENVOYER TRAMES au µc
-          (mettre en mode transparent)*/
-          // URXD1 = buffer
- }
+      signal = 1;                               
+  }
   return(signal);
 }
