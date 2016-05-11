@@ -19,7 +19,7 @@
  */
 
 /**
- * @file main.c
+ * @file boussole.c
  * @brief Le programme permet de réaliser une boussole avec les LEDs du GPS
  */
  
