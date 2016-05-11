@@ -2,6 +2,7 @@
 #include <__cross_studio_io.h>
 #include <msp430x16x.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "io_led_pad.h"
 int GPS_USB_ENABLE = 0;                         // à 0 si GPS activé ou 1 si USB activé
@@ -9,7 +10,7 @@ int GPS_USB_ENABLE = 0;                         // à 0 si GPS activé ou 1 si U
 
 /*------------------ Variable globale programme*/
 char buf_0[200];
-char trame[100];
+char trame[100];                            //chaine contenant la trame GGA
 char UTC[10];
 char latitude[10];
 char NS[2];                                   //Nord ou Sud
@@ -26,6 +27,7 @@ char age_diff[10];                            // Age of Diff. Corr
 char id_station[10];                          // Diff. Ref. Station ID
 char checksum[10];
 char buf_1[200];
+char trame_vtg[50];                           //chaine contenant la trame VTG
 int h;
 
 
