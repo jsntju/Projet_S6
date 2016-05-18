@@ -11,8 +11,14 @@ extern int right_actif;
 
 void init_ecran(void);
 void init_choix_main(void);
+void init_choix_navigation(void);
+void init_parcours(void);
 void select_main(void);
+void select_navigation(void);
+void select_parcours(void);
 void choix_main_pad(void);
+void choix_navig_pad(void);
+void choix_parcours(void);
 
 
 // ------- FONCTION ELEMENTAIRE POUR LA PROGRAMMATION DE L'ECRAN ---------------

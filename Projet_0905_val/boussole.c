@@ -3,8 +3,8 @@
  * Case 925 - 163, avenue de Luminy
  * 13288 Marseille CEDEX 9
  * 
- * Ce fichier est l'oeuvre d'Ã©lÃ¨ves de Polytech Marseille. Il ne peut Ãªtre 
- * reproduit, utilisÃ© ou modifiÃ© sans l'avis express de ses auteurs.
+ * Ce fichier est l'oeuvre d'élèves de Polytech Marseille. Il ne peut être 
+ * reproduit, utilisé ou modifié sans l'avis express de ses auteurs.
  */
 
 /**
@@ -20,81 +20,69 @@
 
 /**
  * @file boussole.c
- * @brief Le programme permet de rÃ©aliser une boussole avec les LEDs du GPS
+ * @brief Le programme permet de réaliser une boussole avec les LEDs du GPS
  */
- 
+
 #include <__cross_studio_io.h>
 #include <msp430x16x.h>
 #include <string.h>
 #include <gps.h>
 #include <math.h>
+#include <stdlib.h>
 
-
-
-/* @brief: Transformer les coordonnÃ©es en Degres minute senconde (DMS) en degres decimaux (DD)
-*   @Parametre:
-  - La chaine de caractere contenat la coordonnÃ©e
-  - Lati_longi (booleen): si 1 -> latitude, si 0 ->longitude
-  - cardi: Point cardinaux: NS pour latitude et EW pour longitude
-*   @Retourne:
-  - DD: la coordonnÃ©e en de gres decimeaux
+/* @Brief: Selectionne les trames VTG
+* Retourne une trame VTG
 */
-float DMS_en_DD(char* coord,int lati_longi, char* cardi)
+void selec_trame_vtg(void)
 {
-  float DD;                                                   //coordonnÃ©e decimale
-  char* tmp;                                                  //Temporaire 
-  int degre, min, sec;
-//      Extraction des degres, minutes et secondes
-    if(lati_longi)                                             //Latitude
-    {
-      degre = atoi(substr(tmp,coord,0,1));                    //degres = 2 permieres variables (atoi transforme en int)
-      if(strcmp(cardi,"S") == 0)
-      {
-        degre = -degre;
-      }
-      min = atoi(substr(tmp,coord,2,3));
-      sec = atoi(substr(tmp,coord,5,search(coord,'\0',5)));   //sec jusqu'Ã  la fin de la chaine
-    }
-    else                                                      //Longitude
-    {
-      degre = atoi(substr(tmp,coord,0,2));                    //degres = 3 permieres variables (atoi transforme en int)
-      if(strcmp(cardi,"O") == 0)
-      {
-        degre = -degre;
-      }
-
-      min = atoi(substr(tmp,coord,3,4));
-      sec = atoi(substr(tmp,coord,6,search(coord,'\0',6)));   //sec jusqu'Ã  la fin de la chaine
-    }
-
-    DD = degre+(min/60)+(sec/3600);                           //Calcul degres decimaux
-  return(DD);
+    char* ptr;
+    int retour_chariot;
+    ptr = strstr(buf_1,"$GPVTG");                                           //Recherche $GPVTG
+    retour_chariot = search(ptr,10,0);   
+    substr(trame_vtg,ptr,0,retour_chariot);                                 //Decoupe la trame
 }
 
-
-
-/*
-* @Brief: Calcul l'angle entre le pole Nord et un point gÃ©ographique
-*   @Parametres:
-    - Longi: longitude en DD du point gÃ©ographique
-    - Lati: latitude en DD du point gÃ©ographique
-*   @Retourne: azimut -> l'angle du vecteur
+/* @ Selectionne les objets de la trame (entre les virgules)
+* @Parametres: 
+* - char * objet: chaine de caractere à selectionner
+* @ retourne:
+* - le cap en degrèes exprimer en float 
+  - ou si le cap est mauvais -1 (erreur)
 */
-float direction_nord(float longi, float lati)
+float selec_cap (char * objet, float cap_anc)
 {
-  float longi_nord = 82.116667;                               //coordonnÃ©e DD pole Nord
-  float lati_nord = -114.068888;
-  float azimut;                                               //angle poleNord-point
-  float x, y;
-
-  x = cos(lati)*sin(lati_nord)-sin(lati)*cos(lati_nord)*cos(longi_nord-longi);
-  y = sin(longi_nord-longi)*cos(lati_nord);
-  azimut = atan2(y,x);                                        //Calcul de l'angle en radian
-
-  return(azimut);
+    if(trame_vtg[0] != '\0')
+    {
+        int j=0;                                        
+        int i;
+        int f = 0;
+        char valid[2];
+        char cap[20];
+        f = search(trame_vtg,',',0)+1;                        //se positionne après le nom du protocole
+       
+        for(i=0; i<20; i++)                                   //initialise la chaine de caractere
+        {
+            cap[i] = '\0';                                    //suprimme les information dans la chaine de caractere
+        }
+        while (trame_vtg[f] != ',' && trame_vtg[f] != '\0')
+        {
+            cap[j] = trame_vtg[f];                            //Enregistre l'angle du cap
+            j++;
+            f++;  
+        }
+        if((atof(cap))!= 0)                                   //Si le cap est correcte
+        {
+            return(atof(cap));                                //retourne transformer en float
+        }
+        else
+        {
+            return(-1);                                       //Sinon envoie une erreur
+        }
+    }else
+    {
+        return(/*cap_anc*/-1);
+    }
 }
-
-
 
 /*
 * @Brief: Allumer LED en fonction de la direction
@@ -103,41 +91,41 @@ float direction_nord(float longi, float lati)
 */
 void boussole_LED(float azimut)
 {
-  azimut = azimut*(180/3.14);                               //transforme en degres
-  if(azimut>=345 && azimut<=15)                             //Nord
-  {
-    P1OUT &= 0xE0; 
-    P1OUT |= 0x04;                                          //allume D3
-  }
-  if(azimut>15 && azimut<75)                                //Nord EST
-  {
-     //P1OUT = 00000111;                                    //allume D3 D4
-  }
-  if(azimut>=75 && azimut<=105)                             //EST
-  {
-    P1OUT &= 0xE0; 
-    P1OUT |= 0x08;                                          //allume D4
-  }
-  if(azimut>105 && azimut<165)                              //SUD EST
-  {
-    //P1OUT = 00000110;                                     //allume D4 D2
-  }
-  if(azimut>=165 && azimut<=195)                            //SUD 
-  {
-    P1OUT &= 0xE0; 
-    P1OUT |= 0x02;                                          //allume D2
-  }
-  if(azimut>195 && azimut<255)                              //SUD OUEST
-  {
-    //allume D2 et D5
-  }
-  if(azimut>=255 && azimut<=285)                            //OUEST
-  {
-    P1OUT &= 0xE0; 
-    P1OUT |= 0x10;                                          //allume D5
-  }
-  if(azimut>285 && azimut<345)                              //Nord OUEST
-  {
-    //allume D5 ET D3
-  }
+    if((azimut>=345 && azimut<=360) ||(azimut>0 && azimut<=15))  //Nord
+    {
+        P1OUT = 0x02;                                             //allume D2
+    }
+    else if(azimut>15 && azimut<75)                               //Nord OUEST
+    {
+                                                                  //allume D4 ET D2
+        P1OUT = 0x0A;  
+    }
+    else if(azimut>=75 && azimut<=105)                            //EST
+    {
+        P1OUT = 0x10;                                             //allume D5
+    }
+    else if(azimut>105 && azimut<165)                             //SUD EST
+    {
+        P1OUT = 0x14;                                               //allume D4 D2
+    }
+    else if(azimut>=165 && azimut<=195)                           //SUD 
+    { 
+        P1OUT = 0x04;                                             //allume D2
+    }
+    else if(azimut>195 && azimut<255)                             //SUD OUEST
+    {
+        P1OUT = 0x0C;                                             //allume D2 et D5
+    }
+    else if(azimut>=255 && azimut<=285)                           //OUEST
+    {
+        P1OUT = 0x08;                                             //allume D5
+    }
+    else if(azimut>285 && azimut<345)                             //Nord EST
+    {
+        P1OUT = 0x12;                                             //allume D3 D4
+    }
+    else                                                          //Si angle correspond à aucune valeur
+    { 
+        P1OUT = 1;                                                //Allumer Diode centrale ==> aucune information reçu ou exploitable
+    }
 }

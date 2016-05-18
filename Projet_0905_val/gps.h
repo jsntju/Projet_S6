@@ -2,13 +2,13 @@
 #ifndef __gps
 #define __gps
 
-void init_uart0(void);
-void usart0_rx (void);
-void usart1_rx (void);
+void init_uart(void);                                        
+void usart0_rx (void);                                       
+void usart1_rx (void);                                       
 void activer_communication_USB(void);
 void activer_communication_GPS(void);
 
-void selec_trame_gga(void);/*char *buf_0);*/
+void selec_trame_gga(void);
 char* selec_objet (char * objet);
 char* initialise_obj (char *objet, int taille);
 void gps_gga (char *buf_0);
@@ -36,6 +36,7 @@ extern char unit_geo[2];        //unité  geod separation
 extern char age_diff[10];      // Age of Diff. Corr
 extern char id_station[10];    // Diff. Ref. Station ID
 extern char checksum[10];
+extern char trame_vtg[50];
 extern int h;
 
 extern int rep_ecran;

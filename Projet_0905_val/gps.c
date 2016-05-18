@@ -3,8 +3,8 @@
  * Case 925 - 163, avenue de Luminy
  * 13288 Marseille CEDEX 9
  * 
- * Ce fichier est l'oeuvre d'Ã©lÃ¨ves de Polytech Marseille. Il ne peut Ãªtre 
- * reproduit, utilisÃ© ou modifiÃ© sans l'avis express de ses auteurs.
+ * Ce fichier est l'oeuvre d'élèves de Polytech Marseille. Il ne peut être 
+ * reproduit, utilisé ou modifié sans l'avis express de ses auteurs.
  */
 
 /**
@@ -20,8 +20,8 @@
 
 /**
  * @file gps.c 
- * @brief Le programme permet de gÃ©rer de recevoir les donnÃ©es de l'Ã©cran et du GPS
- * *  Et de lire les trames GGA ainsi que de les sÃ©quencer
+ * @brief Le programme permet de gérer de recevoir les données de l'écran et du GPS
+ * *  Et de lire les trames GGA ainsi que de les séquencer
  */
  
 #include <__cross_studio_io.h>
@@ -30,7 +30,7 @@
 #include <stdlib.h>
 
 #include "io_led_pad.h"
-int GPS_USB_ENABLE = 0;                         // Ã  0 si GPS activÃ© ou 1 si USB activÃ©
+int GPS_USB_ENABLE = 0;                         // à 0 si GPS activé ou 1 si USB activé
 
 
 /*------------------ Variable globale programme*/
@@ -45,9 +45,9 @@ char Pos_ind[10];                             //Position fix indicator
 char nb_sat[10];                              //nombre de sattelites
 char HDOP[10];                                //horizontal dilution of precision
 char alti[10];                                //altitude
-char unit_alti[2];                            //unitÃ©  d'altitude
+char unit_alti[2];                            //unité  d'altitude
 char geoid[10];                               //geoid separation
-char unit_geo[2];                             //unitÃ©  geod separation
+char unit_geo[2];                             //unité  geod separation
 char age_diff[10];                            // Age of Diff. Corr
 char id_station[10];                          // Diff. Ref. Station ID
 char checksum[10];
@@ -65,12 +65,12 @@ int flag_1;
 
 
 /*----------------------------------------- FONCTION POUR CHAR --------------------------------------------------------*/
-/* @Brief: copie une chaine de caracteres entre deux rangs donnÃ©s
+/* @Brief: copie une chaine de caracteres entre deux rangs donnés
 * Parametres: 
   - buf: nouvelle chaine de caractere
-  - s : chaine de caractere Ã  copier
-  - beg: rang Ã  partir duquelle on souhaite copier la chaine
-  - beg: rang jusqu'oÃ¹ on souhaite copier la chaine
+  - s : chaine de caractere à copier
+  - beg: rang à partir duquelle on souhaite copier la chaine
+  - beg: rang jusqu'où on souhaite copier la chaine
 * Retourne:
   - La nouvelle chaine buf
 */
@@ -81,13 +81,13 @@ char * substr(char *buf, const char *s, size_t beg, size_t len)
         return (buf);
 }
 
-/* @Brief: renvoit la position d' un caractere Ã  partir d'un rang donnÃ©
+/* @Brief: renvoit la position d' un caractere à partir d'un rang donné
 * Parametres: 
   - s : chaine de caractere 
   - carac: caratere chercher
   - debut: rang de la chaine de caractere
 * Retourne:
-  - Le rang (int) oÃ¹ se trouve le caractere
+  - Le rang (int) où se trouve le caractere
 */
 int search (char *s, char carac, int debut)
 {
@@ -103,19 +103,19 @@ int search (char *s, char carac, int debut)
 
 
 /*---------------------------- INITIALISATION UART--------------------------------*/
-/*@Brief: initialise l'uart
+/*@Brief: initialise les uart 0 et 1
 */
-void init_uart0(void){
+void init_uart(void){
     unsigned int i;
     
     //  Configuration de l'USART0
-    UCTL0 = SWRST;                       // mise Ã  0 de l'UART0 
-    UCTL0 |= CHAR;                       // Format des caractÃ¨res sur 8-bits
+    UCTL0 = SWRST;                       // mise à 0 de l'UART0 
+    UCTL0 |= CHAR;                       // Format des caractères sur 8-bits
     UTCTL0 |= SSEL1;                     // UCLK = SMCLK
     
     //  Configuration de l'USART1
-    UCTL1 = SWRST;                       // mise Ã  0 de l'UART1 
-    UCTL1 |= CHAR;                       // Format des caractÃ¨res sur 8-bits
+    UCTL1 = SWRST;                       // mise à 0 de l'UART1 
+    UCTL1 |= CHAR;                       // Format des caractères sur 8-bits
     UTCTL1 |= SSEL1;                     // UCLK = SMCLK
 
     // Config du taux de transmission pour 9600 bauds
@@ -127,12 +127,12 @@ void init_uart0(void){
     U1BR1 = 0x03;                      
     UMCTL1 = 0x21;                       // no modulation
 
-    UCTL0 &= ~SWRST;                     // Fin de l'Ã©tat de reset de l'UART0
-    UCTL1 &= ~SWRST;                     // Fin de l'Ã©tat de reset de l'UART1
+    UCTL0 &= ~SWRST;                     // Fin de l'état de reset de l'UART0
+    UCTL1 &= ~SWRST;                     // Fin de l'état de reset de l'UART1
 
-    // activation transmission et rÃ©cÃ©ption
+    // activation transmission et récéption
     ME1 |= URXE0 | UTXE0;                // Enable USART0 TXD/RXD
-    IE1 |= URXIE0 ;                      // Enable USART0 RX interrup
+    IE1 &= ~URXIE0 ;                     // Disable USART0 RX interrup
 
     ME2 |= URXE1 | UTXE1;                // Enable USART1 TXD/RXD
     IE2 |= URXIE1 ;                      // Enable USART1 RX interrup
@@ -145,43 +145,35 @@ void init_uart0(void){
     P3SEL |= 0xC0;                       // P3.6,7 en mode USART1 TXD/RXD
     P3DIR |= 0x80;                       // P3.6 output direction
     P3DIR &= ~0x40;                      // P3.7 output direction
-     
-    // activation des interruptions pour la rÃ©ception
+    
+    // activation des interruptions pour la réception
     _EINT();                             // Enable interrupts
 }
 
-
-
-
-/*@brief: RecupÃ©re les informations du buffer et stock les informations dans buf_0.
-* Et copie les donnÃ©es Ã  exploiter dans buf_1.
+/*@brief: Recupére les informations du buffer et stock les informations dans buf_0.
+* Et copie les données à exploiter dans buf_1.
 */
 void usart0_rx (void) __interrupt[USART0RX_VECTOR]{  
     char c;
-    num_octet1 = 0;                     //compteur d'octets
-    memset(buf_0, 0, sizeof buf_0);     //DÃ©clare la memoire allouÃ© Ã  buf_0
+    num_octet1 = 0;                     // compteur d'octets
+    memset(buf_0, 0, sizeof buf_0);     // Déclare la memoire alloué à buf_0
     
-    while (num_octet1 <= (100-1)) {     // tant que le buffer n'est pas rempli
+    while (num_octet1 <= (200-1)) {     // tant que le buffer n'est pas rempli
         while (!(IFG1 & URXIFG0)) {}    // tant que flag interrupt en cours, on attend
         buf_0[num_octet1] = U0RXBUF;    // ou RXBUF0;
         num_octet1++;
     }
-    buf_1[0] = '\0';                    //Initialise buf_1  
-    strcpy(buf_1,buf_0);                //Copie buf_0 dans buf_1
-    IE1 &= ~URXIE0 ;                    //
-    IFG1 &= ~(IFG1 & URXIFG0);          //
+    buf_1[0] = '\0';                    // Initialise buf_1  
+    strcpy(buf_1,buf_0);                // Copie buf_0 dans buf_1
+    IE1 &= ~URXIE0 ;                    //      
 }
 
-/*@Brief: Stok la rÃ©ponse de l'Ã©cran dans rep_ecran
+/*@Brief: Stocke la réponse de l'écran dans rep_ecran
 */
 void usart1_rx (void) __interrupt[USART1RX_VECTOR]{  
     flag_1 = 1;
     rep_ecran = RXBUF1; 
 }
-
-
-
-
 
 /*-------------------------------- ACTIVER COMMUNICATIONS ------------------------------------------------*/
 /* @brief: active la liason entre le microprocesseur et l'usb
@@ -190,8 +182,6 @@ void activer_communication_USB(void){
     // on desactive le GPS, P4,0
     P4OUT &= ~BIT0;
     P4OUT = BIT2;                           // = (0000 0100)2 : P4.2 = 1 -> le PORT SERIE 0 communique avec l'USB  
-    if((P4OUT&BIT2)!= 0)debug_printf("Communication USB activÃ©\n");
-    GPS_USB_ENABLE = 1;
 }
 
 /* @brief: active la liason entre le microprocesseur et le GPS
@@ -199,15 +189,11 @@ void activer_communication_USB(void){
 void activer_communication_GPS(void){
     P4OUT |= BIT0 ;                         // = (1111 1011)2 : P4.2 = 0 -> le PORT SERIE 0 communique avec le GPS  
     P4OUT &= ~BIT2;
-    if((P4OUT&BIT2)== 0) debug_printf("Communication GPS activÃ©\n");
-    GPS_USB_ENABLE = 0;
 }
-
-
 
 /*----------------------------------------- SELECTION TRAMES GGA -------------------------------------------------------*/
 /* @Brief: Selectionne les trames GGA
-* Utilise buf_1 et dÃ©coupe dans un nouveaux Char la trame GGA
+* Utilise buf_1 et découpe dans un nouveaux Char la trame GGA
 * Retourne une trame GGA
 */
 void selec_trame_gga(void)
@@ -222,7 +208,7 @@ void selec_trame_gga(void)
 
 /* @ Selectionne les objets de la trame (entre les virgules)
 * @Parametres: 
-* - char * objet: chaine de caractere Ã  selectionner
+* - char * objet: chaine de caractere à selectionner
 * @ retourne:
 * - L'objet: chaine de caracteres
 */
@@ -234,19 +220,19 @@ char* selec_objet (char * objet)
        {
           objet[j] = trame[h];
           j++;
-          h++;                                          //h: variable globale => rang de dÃ©part pour copier les objets
+          h++;                                          //h: variable globale => rang de départ pour copier les objets
        }
-       h++;                                             //h => utilisÃ© Ã  chaque rappele de fonction
+       h++;                                             //h => utilisé à chaque rappele de fonction
     }
     return(objet);
 }
 
 /* @Brief: Initialise les objets de la trame
-* permet de reÃ©crire dans le char sans garder les informations prÃ©cÃ©dentes
+* permet de reécrire dans le char sans garder les informations précédentes
 * @ Parametre: 
 * - Objet (chaine de caracteres)
 * - Taille: taille maximum du char
-* @ Retourne: Objet effacÃ© 
+* @ Retourne: Objet effacé 
 */
 char * initialise_obj (char * objet, int taille)
 {
@@ -259,13 +245,13 @@ char * initialise_obj (char * objet, int taille)
 }
 
 
-/* @Brief: Indique si la trame envoyÃ© est correcte et donc utilisable
+/* @Brief: Indique si la trame envoyé est correcte et donc utilisable
 * Retourne 1 si trame correcte 
 * 0 sinon*/
 int GGA_OK (void)
 {    
    signal = 0;                                    //fonction atoi: transforme char en int  
-  if((atoi(Pos_ind) != 0) && (atoi(nb_sat) >= 4)) //4 statellite et position (flag) doit Ãªtre Ã  plus de 0              
+  if((atoi(Pos_ind) != 0) && (atoi(nb_sat) >= 4)) //4 statellite et position (flag) doit être à plus de 0              
   {
       signal = 1;                               
   }

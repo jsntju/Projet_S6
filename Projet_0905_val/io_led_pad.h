@@ -9,8 +9,5 @@ void delay(unsigned int t);
  * et recevoir l'état du port P2 */
 void initialisation_LED_PAD(void);
 
-//void P2_Pad (void);
-
-
 #endif
 
